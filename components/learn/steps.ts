@@ -97,10 +97,10 @@ export function positions(step: number): Record<number, Spot> {
 
   // 10: the row recedes upward and the fifth card lands centre stage
   return {
-    [CQ]: spot(150, HOLD_Y, HOLD_SCALE, 0.45),
-    [C7]: spot(210, HOLD_Y, HOLD_SCALE, 0.45),
-    [CA]: spot(270, HOLD_Y, HOLD_SCALE, 0.45),
-    [C3]: spot(330, HOLD_Y, HOLD_SCALE, 0.45),
+    [CQ]: spot(122, HOLD_Y, HOLD_SCALE, 0.45),
+    [C7]: spot(182, HOLD_Y, HOLD_SCALE, 0.45),
+    [CA]: spot(242, HOLD_Y, HOLD_SCALE, 0.45),
+    [C3]: spot(302, HOLD_Y, HOLD_SCALE, 0.45),
     [C9]: spot((STAGE_W - CARD_W) / 2, ROW_Y, 1, 1, true),
   };
 }

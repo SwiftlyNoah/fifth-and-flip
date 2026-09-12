@@ -80,9 +80,13 @@ export function Hit({ children }: { children: ReactNode }) {
 }
 
 export function NextButton({ onClick, label = 'Next hand' }: { onClick: () => void; label?: string }) {
+  // Focus lands here so the keyboard path carries on, but without the scroll
+  // jump autoFocus would cause at the bottom of a tall drill.
+  const focus = (node: HTMLButtonElement | null) => node?.focus({ preventScroll: true });
+
   return (
     <div className="mt-3">
-      <button type="button" className="btn btn-go" onClick={onClick} autoFocus>
+      <button type="button" className="btn btn-go" onClick={onClick} ref={focus}>
         {label} <span className="ml-2 text-[0.75rem] opacity-70">&crarr;</span>
       </button>
     </div>
