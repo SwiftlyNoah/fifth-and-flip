@@ -21,7 +21,18 @@ function niceCeiling(maxMs: number, divisions: number): number {
  * through them. The y axis starts at zero, so a line that sinks across the
  * chart is a real improvement rather than a rescaled one.
  */
-export function HistoryChart({ attempts, rolling }: { attempts: readonly Attempt[]; rolling: number }) {
+export function HistoryChart({
+  attempts,
+  rolling,
+  selected,
+  onSelect,
+}: {
+  attempts: readonly Attempt[];
+  rolling: number;
+  /** index into `attempts`, or null */
+  selected: number | null;
+  onSelect: (index: number | null) => void;
+}) {
   const { ref, width } = useMeasuredWidth<HTMLDivElement>(640);
 
   const model = useMemo(() => {
@@ -73,13 +84,46 @@ export function HistoryChart({ attempts, rolling }: { attempts: readonly Attempt
   const faster = model.shift < -0.02;
   const slower = model.shift > 0.02;
 
+  /** The attempt nearest a pointer, so the whole column is the tap target. */
+  const indexAt = (clientX: number, svg: SVGSVGElement) => {
+    const box = svg.getBoundingClientRect();
+    const t = (clientX - box.left - PAD.left) / plotW;
+    return Math.max(0, Math.min(model.n - 1, Math.round(t * (model.n - 1))));
+  };
+
+  const step = (by: number) => {
+    const from = selected ?? (by > 0 ? -1 : model.n);
+    onSelect(Math.max(0, Math.min(model.n - 1, from + by)));
+  };
+
+  const picked = selected !== null && selected >= 0 && selected < model.n ? attempts[selected] : null;
+
   return (
     <div ref={ref} className="mt-3">
       <svg
         width={width}
         height={H}
-        role="img"
-        aria-label={`Attempt times over ${model.n} attempts. The first ${model.span} averaged ${formatMs(model.headAvg)} and the last ${model.span} averaged ${formatMs(model.tailAvg)}.`}
+        tabIndex={0}
+        role="group"
+        aria-label={`Attempt times over ${model.n} attempts. The first ${model.span} averaged ${formatMs(model.headAvg)} and the last ${model.span} averaged ${formatMs(model.tailAvg)}. Arrow keys pick an attempt.`}
+        className="chart-surface touch-none rounded"
+        onKeyDown={(e) => {
+          if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            step(1);
+          } else if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            step(-1);
+          } else if (e.key === 'Home') {
+            e.preventDefault();
+            onSelect(0);
+          } else if (e.key === 'End') {
+            e.preventDefault();
+            onSelect(model.n - 1);
+          } else if (e.key === 'Escape') {
+            onSelect(null);
+          }
+        }}
       >
         {model.ticks.map((ms) => (
           <g key={ms}>
@@ -119,6 +163,41 @@ export function HistoryChart({ attempts, rolling }: { attempts: readonly Attempt
 
         {/* the trend */}
         <path d={rollPath} fill="none" stroke="var(--color-brass)" strokeWidth="1.8" strokeLinejoin="round" />
+
+        {picked ? (
+          <g>
+            <line
+              x1={x(selected!)}
+              x2={x(selected!)}
+              y1={PAD.top}
+              y2={PAD.top + plotH}
+              stroke="var(--color-brass)"
+              strokeWidth="1"
+              strokeOpacity="0.45"
+            />
+            <circle
+              cx={x(selected!)}
+              cy={y(picked.ms)}
+              r={5}
+              fill="none"
+              stroke="var(--color-brass)"
+              strokeWidth="1.6"
+            />
+          </g>
+        ) : null}
+
+        <rect
+          x={PAD.left - 6}
+          y={PAD.top}
+          width={plotW + 12}
+          height={plotH}
+          fill="transparent"
+          style={{ cursor: 'pointer' }}
+          onPointerDown={(e) => {
+            e.currentTarget.ownerSVGElement?.focus({ preventScroll: true });
+            onSelect(indexAt(e.clientX, e.currentTarget.ownerSVGElement!));
+          }}
+        />
 
         <text
           x={PAD.left}

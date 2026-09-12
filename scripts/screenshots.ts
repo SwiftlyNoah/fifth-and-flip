@@ -21,7 +21,14 @@ const OUT = path.join(process.cwd(), 'docs', 'screenshots');
  * A plausible practice history: mostly right, wobbly, and getting quicker.
  * Accuracy climbs over the run so the window deltas have something to show.
  */
-function seedAttempts(n: number, from: number, to: number, seed: number): string {
+function seedAttempts(
+  n: number,
+  from: number,
+  to: number,
+  seed: number,
+  /** one stray attempt, the kind worth deleting */
+  outlier?: { index: number; ms: number },
+): string {
   const now = Date.now();
   let x = seed >>> 0;
   const rnd = () => {
@@ -40,6 +47,9 @@ function seedAttempts(n: number, from: number, to: number, seed: number): string
       at: now - (n - i) * 45_000,
     };
   });
+  if (outlier && attempts[outlier.index]) {
+    attempts[outlier.index] = { ...attempts[outlier.index], ms: outlier.ms, correct: false };
+  }
   return JSON.stringify({ v: 1, attempts });
 }
 
@@ -48,7 +58,7 @@ const SEED = {
   'faf:v1:A:values': seedAttempts(96, 4200, 1500, 11),
   'faf:v1:A:hide': seedAttempts(62, 12_000, 6400, 22),
   'faf:v1:A:findm': seedAttempts(58, 9000, 4800, 33),
-  'faf:v1:A:lay': seedAttempts(138, 44_000, 19_000, 44),
+  'faf:v1:A:lay': seedAttempts(138, 44_000, 19_000, 44, { index: 96, ms: 92_000 }),
   'faf:v1:M:values': seedAttempts(88, 4400, 1700, 55),
   'faf:v1:M:readrow': seedAttempts(64, 11_000, 5200, 66),
   'faf:v1:M:findcard': seedAttempts(51, 17_000, 9100, 77),
@@ -118,6 +128,22 @@ const SHOTS: Shot[] = [
       await page.waitForTimeout(400);
       await page.getByRole('button', { name: 'Show the history' }).click();
       await page.waitForTimeout(400);
+
+      // pick the stray 92s attempt, so the shot shows what the inspector is for
+      const point = await page.evaluate((index: number) => {
+        const svg = document.querySelector('section[aria-label="Practice statistics"] svg[tabindex]');
+        if (!svg) return null;
+        const box = svg.getBoundingClientRect();
+        const padLeft = 46;
+        const plotW = box.width - padLeft - 10;
+        const n = 138;
+        return { x: box.left + padLeft + (index * plotW) / (n - 1), y: box.top + 60 };
+      }, 96);
+      if (point) {
+        await page.mouse.click(point.x, point.y);
+        await page.waitForTimeout(300);
+      }
+
       await page.evaluate(() => {
         const el = document.querySelector('section[aria-label="Practice statistics"]');
         const header = document.querySelector('header');

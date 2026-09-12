@@ -19,6 +19,8 @@ export function DrillShell({
   summary,
   attempts,
   onReset,
+  onRemoveAttempt,
+  onRestoreAttempt,
 }: {
   prompt: ReactNode;
   timer: { elapsed: number; running: boolean };
@@ -28,6 +30,8 @@ export function DrillShell({
   summary: Summary;
   attempts: readonly Attempt[];
   onReset: () => void;
+  onRemoveAttempt: (index: number) => void;
+  onRestoreAttempt: (index: number, attempt: Attempt) => void;
 }) {
   return (
     <div className="rounded-b-md border border-t-0 border-felt-line bg-felt-deep p-5 sm:p-6">
@@ -50,7 +54,13 @@ export function DrillShell({
 
       {footer}
 
-      <StatsPanel summary={summary} attempts={attempts} onReset={onReset} />
+      <StatsPanel
+        summary={summary}
+        attempts={attempts}
+        onReset={onReset}
+        onRemoveAttempt={onRemoveAttempt}
+        onRestoreAttempt={onRestoreAttempt}
+      />
     </div>
   );
 }

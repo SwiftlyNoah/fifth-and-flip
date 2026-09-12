@@ -1,14 +1,19 @@
-import { describe, expect, it } from 'vitest';
+import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import {
   DEFAULT_WINDOWS,
   MAX_WINDOWS,
   WINDOW_MAX,
   WINDOW_MIN,
   type Attempt,
+  appendAttempt,
+  deleteAttemptAt,
+  insertAttemptAt,
   normaliseWindows,
+  readHistory,
   rollingAverage,
   summarise,
   summariseWindow,
+  writeHistory,
 } from './stats';
 
 /** ms values in, attempts out. A negative value marks a wrong answer. */
@@ -112,5 +117,77 @@ describe('normaliseWindows', () => {
     expect(normaliseWindows([])).toEqual([...DEFAULT_WINDOWS]);
     expect(normaliseWindows('nonsense')).toEqual([...DEFAULT_WINDOWS]);
     expect(normaliseWindows(undefined)).toEqual([...DEFAULT_WINDOWS]);
+  });
+});
+
+/* ---------------------------------------------- the storage-backed helpers */
+
+/** Just enough of the Storage interface for lib/stats to run under node. */
+function fakeStorage() {
+  const map = new Map<string, string>();
+  return {
+    get length() {
+      return map.size;
+    },
+    key: (i: number) => [...map.keys()][i] ?? null,
+    getItem: (k: string) => map.get(k) ?? null,
+    setItem: (k: string, v: string) => {
+      map.set(k, v);
+    },
+    removeItem: (k: string) => {
+      map.delete(k);
+    },
+    clear: () => map.clear(),
+  };
+}
+
+const hadWindow = 'window' in globalThis;
+
+describe('editing a stored history', () => {
+  beforeEach(() => {
+    Object.defineProperty(globalThis, 'window', {
+      value: { localStorage: fakeStorage() },
+      configurable: true,
+      writable: true,
+    });
+    writeHistory('A', 'lay', { v: 1, attempts: attempts(1000, 2000, 3000, 4000) });
+  });
+
+  afterAll(() => {
+    if (!hadWindow) Reflect.deleteProperty(globalThis, 'window');
+  });
+
+  it('drops the attempt at the given position and keeps the order', () => {
+    const next = deleteAttemptAt('A', 'lay', 1);
+    expect(next.attempts.map((a) => a.ms)).toEqual([1000, 3000, 4000]);
+    // and it is actually persisted, not just returned
+    expect(readHistory('A', 'lay').attempts.map((a) => a.ms)).toEqual([1000, 3000, 4000]);
+  });
+
+  it('leaves the history alone for an index that is not there', () => {
+    for (const index of [-1, 4, 99, 1.5, NaN]) {
+      expect(deleteAttemptAt('A', 'lay', index).attempts).toHaveLength(4);
+    }
+  });
+
+  it('puts one back exactly where it was, which is what undo needs', () => {
+    const before = readHistory('A', 'lay').attempts;
+    const removed = before[2];
+    deleteAttemptAt('A', 'lay', 2);
+    const restored = insertAttemptAt('A', 'lay', 2, removed);
+    expect(restored.attempts).toEqual(before);
+  });
+
+  it('clamps an out-of-range insert to the ends rather than dropping it', () => {
+    const [one] = attempts(9000);
+    expect(insertAttemptAt('A', 'lay', -5, one).attempts[0].ms).toBe(9000);
+    expect(insertAttemptAt('A', 'lay', 99, one).attempts.at(-1)?.ms).toBe(9000);
+  });
+
+  it('keeps each drill and role separate', () => {
+    appendAttempt('M', 'call', { correct: true, ms: 7000, at: 1 });
+    deleteAttemptAt('A', 'lay', 0);
+    expect(readHistory('A', 'lay').attempts).toHaveLength(3);
+    expect(readHistory('M', 'call').attempts).toHaveLength(1);
   });
 });

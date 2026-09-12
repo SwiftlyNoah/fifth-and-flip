@@ -1,6 +1,7 @@
 'use client';
 
 import { type ReactNode, useState, useSyncExternalStore } from 'react';
+import { AttemptInspector } from './AttemptInspector';
 import { Delta } from './Delta';
 import { HistoryChart } from './HistoryChart';
 import { Sparkline } from './Sparkline';
@@ -51,14 +52,48 @@ export function StatsPanel({
   summary,
   attempts,
   onReset,
+  onRemoveAttempt,
+  onRestoreAttempt,
 }: {
   summary: Summary;
   attempts: readonly Attempt[];
   onReset: () => void;
+  onRemoveAttempt: (index: number) => void;
+  onRestoreAttempt: (index: number, attempt: Attempt) => void;
 }) {
   const windows = useSyncExternalStore(subscribeWindows, getWindows, getServerWindows);
   const [confirming, setConfirming] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [selected, setSelected] = useState<number | null>(null);
+  const [undo, setUndo] = useState<{ index: number; attempt: Attempt } | null>(null);
+
+  // Nothing to inspect once the chart is closed.
+  function toggleExpanded() {
+    const next = !expanded;
+    setExpanded(next);
+    if (!next) {
+      setSelected(null);
+      setUndo(null);
+    }
+  }
+
+  function deleteAttempt(index: number) {
+    const attempt = attempts[index];
+    if (!attempt) return;
+    onRemoveAttempt(index);
+    setUndo({ index, attempt });
+    // hold the place in the row: the attempt that slid into this slot, or the
+    // one before it if the deleted attempt was the last
+    const remaining = attempts.length - 1;
+    setSelected(remaining === 0 ? null : Math.min(index, remaining - 1));
+  }
+
+  function undoDelete() {
+    if (!undo) return;
+    onRestoreAttempt(undo.index, undo.attempt);
+    setSelected(undo.index);
+    setUndo(null);
+  }
 
   // The widest window the history can fill twice over, so the trend line is
   // smooth once there is enough to smooth. Early on, the tightest one.
@@ -66,7 +101,14 @@ export function StatsPanel({
   const rolling = Math.max(3, ascending.filter((w) => w * 2 <= summary.n).pop() ?? ascending[0]);
 
   return (
-    <section className="mt-5 border-t border-felt-line pt-4" aria-label="Practice statistics">
+    <section
+      className="mt-5 border-t border-felt-line pt-4"
+      aria-label="Practice statistics"
+      // While the practitioner is reading or editing their history they are not
+      // answering the question underneath, so the drill's number keys, Enter and
+      // Backspace stay out of here.
+      data-local-keys=""
+    >
       <div className="flex flex-wrap gap-x-7 gap-y-4">
         <Tile
           label="Last"
@@ -113,7 +155,7 @@ export function StatsPanel({
             className="flex flex-col items-end gap-0.5 rounded text-[0.75rem] text-chalk-dim hover:text-chalk disabled:opacity-50"
             aria-expanded={expanded}
             disabled={summary.n < 2}
-            onClick={() => setExpanded((e) => !e)}
+            onClick={toggleExpanded}
           >
             {expanded ? null : <Sparkline attempts={attempts} />}
             <span className="underline decoration-dotted underline-offset-2">
@@ -131,6 +173,8 @@ export function StatsPanel({
                   onReset();
                   setConfirming(false);
                   setExpanded(false);
+                  setSelected(null);
+                  setUndo(null);
                 }}
               >
                 Yes
@@ -156,7 +200,19 @@ export function StatsPanel({
         </div>
       </div>
 
-      {expanded ? <HistoryChart attempts={attempts} rolling={rolling} /> : null}
+      {expanded ? (
+        <>
+          <HistoryChart attempts={attempts} rolling={rolling} selected={selected} onSelect={setSelected} />
+          <AttemptInspector
+            attempts={attempts}
+            selected={selected}
+            onSelect={setSelected}
+            onDelete={deleteAttempt}
+            undo={undo}
+            onUndo={undoDelete}
+          />
+        </>
+      ) : null}
     </section>
   );
 }

@@ -44,7 +44,13 @@ misses crossed, a rolling average drawn through them, and a zero-based axis so a
 across the chart is a real improvement rather than a rescaled one. Underneath, the two ends of
 the run are compared outright.
 
-![The expanded history, with a rolling average falling from 40s to 23s over 138 attempts](docs/screenshots/history-desktop.png)
+Pick any point, by tapping it or by focusing the chart and using the arrow keys, and you get that
+attempt in full: which number it was, how long it took, whether it was right, and when. If it was
+the one where the phone rang, delete it. A single ninety-second attempt drags a fifty-attempt
+average for a long time. Deleting is undoable rather than confirmed, because cleaning up three
+stray attempts should not mean three dialogs.
+
+![The expanded history: a rolling average falling from 40s to 24s over 138 attempts, with a stray 92s attempt selected and ready to delete](docs/screenshots/history-desktop.png)
 
 **The walkthrough.** One fixed hand, ten steps, about ninety seconds, [at `/learn`](https://fifth-and-flip.vercel.app/learn).
 One idea per step and one sentence of text; the animation carries the rest. Cards travel rather

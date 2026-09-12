@@ -22,6 +22,9 @@ export function useKeys(handler: (key: string) => boolean | void) {
     function onKey(e: KeyboardEvent) {
       const t = e.target as HTMLElement | null;
       if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+      // widgets that bind their own arrows or Backspace opt out by marking
+      // themselves, so a drill does not answer a question underneath them
+      if (t && typeof t.closest === 'function' && t.closest('[data-local-keys]')) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (ref.current(e.key) === true) e.preventDefault();
     }

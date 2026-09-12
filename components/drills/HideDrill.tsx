@@ -57,6 +57,8 @@ export function HideDrill() {
       summary={d.summary}
       attempts={d.history.attempts}
       onReset={d.reset}
+      onRemoveAttempt={d.remove}
+      onRestoreAttempt={d.restore}
       footer={
         closed ? (
           <>

@@ -15,6 +15,8 @@ import {
   DEFAULT_WINDOWS,
   appendAttempt,
   clearDrill,
+  deleteAttemptAt,
+  insertAttemptAt,
   normaliseWindows,
   readHistory,
   readWindows,
@@ -96,6 +98,18 @@ export const getServerHistory = () => EMPTY_HISTORY;
 export function record(role: Role, drill: DrillId, attempt: Attempt): void {
   const slot = slotOf(role, drill);
   slot.cache = appendAttempt(role, drill, attempt);
+  emit(slot);
+}
+
+export function removeAttempt(role: Role, drill: DrillId, index: number): void {
+  const slot = slotOf(role, drill);
+  slot.cache = deleteAttemptAt(role, drill, index);
+  emit(slot);
+}
+
+export function restoreAttempt(role: Role, drill: DrillId, index: number, attempt: Attempt): void {
+  const slot = slotOf(role, drill);
+  slot.cache = insertAttemptAt(role, drill, index, attempt);
   emit(slot);
 }
 

@@ -10,7 +10,9 @@ import {
   getWindows,
   nextQuestion,
   record,
+  removeAttempt,
   resetDrill,
+  restoreAttempt,
   subscribeSlot,
   subscribeWindows,
 } from '@/lib/practice';
@@ -45,7 +47,14 @@ export function useDrill(role: Role, drill: DrillId) {
 
   const reset = useCallback(() => resetDrill(role, drill), [role, drill]);
 
+  const remove = useCallback((index: number) => removeAttempt(role, drill, index), [role, drill]);
+
+  const restore = useCallback(
+    (index: number, attempt: Attempt) => restoreAttempt(role, drill, index, attempt),
+    [role, drill],
+  );
+
   const summary = useMemo(() => summarise(history.attempts, windows), [history, windows]);
 
-  return { seed, next, timer, record: submit, reset, history, summary };
+  return { seed, next, timer, record: submit, reset, remove, restore, history, summary };
 }

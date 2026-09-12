@@ -81,6 +81,32 @@ export function appendAttempt(role: Role, drill: DrillId, attempt: Attempt): His
   return next;
 }
 
+/** Drops one attempt by position. Out-of-range indexes change nothing. */
+export function deleteAttemptAt(role: Role, drill: DrillId, index: number): History {
+  const prev = readHistory(role, drill);
+  if (!Number.isInteger(index) || index < 0 || index >= prev.attempts.length) return prev;
+  const attempts = [...prev.attempts];
+  attempts.splice(index, 1);
+  const next: History = { v: STATS_VERSION, attempts };
+  writeHistory(role, drill, next);
+  return next;
+}
+
+/** Puts one back where it was, which is what undoing a deletion needs. */
+export function insertAttemptAt(
+  role: Role,
+  drill: DrillId,
+  index: number,
+  attempt: Attempt,
+): History {
+  const prev = readHistory(role, drill);
+  const attempts = [...prev.attempts];
+  attempts.splice(Math.max(0, Math.min(index, attempts.length)), 0, attempt);
+  const next: History = { v: STATS_VERSION, attempts };
+  writeHistory(role, drill, next);
+  return next;
+}
+
 export function clearDrill(role: Role, drill: DrillId): void {
   if (typeof window === 'undefined') return;
   try {

@@ -83,6 +83,8 @@ export function LayDrill() {
       summary={d.summary}
       attempts={d.history.attempts}
       onReset={d.reset}
+      onRemoveAttempt={d.remove}
+      onRestoreAttempt={d.restore}
       footer={
         closed ? (
           <>

@@ -71,7 +71,9 @@ components/
     WindowEditor.tsx    add and remove the trailing windows the bar reports on
     Delta.tsx           a change against the previous window, coloured by which way is better
     Sparkline.tsx       last ~24 attempts, wrong ones crossed
-    HistoryChart.tsx    the expanded view: every attempt, a rolling average, a zero-based axis
+    HistoryChart.tsx    the expanded view: every attempt, a rolling average, a zero-based axis,
+                        and the selected point
+    AttemptInspector.tsx  what the selected attempt was, and the delete-with-undo
     useMeasuredWidth.ts element width, so the chart can be drawn to fit
     Clock.tsx  CardPicker.tsx
     ValuesDrill HideDrill FindMDrill LayDrill      (assistant ladder)
@@ -105,6 +107,12 @@ prototype.html          the original single-file version. historical reference; 
 - A window's delta compares it with the window of the same size immediately before it, and is
   withheld until that earlier window is full, so the comparison is always like for like. Never
   compare a short window against the all-time average and call it a delta.
+- Deleting a single attempt is **undoable, not confirmed**. Whole-drill and all-drill resets stay
+  behind a confirm. Keep that split: one attempt is cheap and often cleaned in batches, a whole
+  history is not.
+- Anything inside `[data-local-keys]` is skipped by `useKeys`, so a widget can bind its own arrows
+  or Backspace. The stats panel carries it: reading or editing your history must never answer the
+  question underneath, which would write a new attempt into the history being edited.
 
 ### Things not to do
 
