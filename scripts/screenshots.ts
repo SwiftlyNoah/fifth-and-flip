@@ -17,16 +17,26 @@ const PORT = Number(process.env.SHOT_PORT ?? 4321);
 const BASE = `http://127.0.0.1:${PORT}`;
 const OUT = path.join(process.cwd(), 'docs', 'screenshots');
 
-/** A plausible practice history: mostly right, and getting quicker. */
-function seedAttempts(n: number, from: number, to: number, misses: number[]): string {
+/**
+ * A plausible practice history: mostly right, wobbly, and getting quicker.
+ * Accuracy climbs over the run so the window deltas have something to show.
+ */
+function seedAttempts(n: number, from: number, to: number, seed: number): string {
   const now = Date.now();
+  let x = seed >>> 0;
+  const rnd = () => {
+    x = (x * 1664525 + 1013904223) >>> 0;
+    return x / 4294967296;
+  };
+
   const attempts = Array.from({ length: n }, (_, i) => {
     const t = i / Math.max(1, n - 1);
     const base = from + (to - from) * t;
-    const wobble = Math.sin(i * 2.3) * (base * 0.16);
+    const wobble = Math.sin(i * 2.1) * base * 0.17 + (rnd() - 0.5) * base * 0.22;
+    // misses thin out as the drill is learned: 28% at the start, 5% at the end
     return {
-      correct: !misses.includes(i),
-      ms: Math.round(base + wobble),
+      correct: rnd() > 0.28 - 0.23 * t,
+      ms: Math.round(Math.max(1200, base + wobble)),
       at: now - (n - i) * 45_000,
     };
   });
@@ -34,14 +44,15 @@ function seedAttempts(n: number, from: number, to: number, misses: number[]): st
 }
 
 const SEED = {
-  'faf:v1:A:values': seedAttempts(22, 4200, 1500, [3, 11]),
-  'faf:v1:A:hide': seedAttempts(16, 12000, 6400, [2, 9]),
-  'faf:v1:A:findm': seedAttempts(14, 9000, 4800, [5]),
-  'faf:v1:A:lay': seedAttempts(18, 41000, 23000, [1, 6, 13]),
-  'faf:v1:M:values': seedAttempts(20, 4400, 1700, [4]),
-  'faf:v1:M:readrow': seedAttempts(15, 11000, 5200, [7]),
-  'faf:v1:M:findcard': seedAttempts(13, 17000, 9100, [3]),
-  'faf:v1:M:call': seedAttempts(17, 38000, 21000, [0, 8]),
+  'faf:v1:windows': JSON.stringify([5, 12, 50]),
+  'faf:v1:A:values': seedAttempts(96, 4200, 1500, 11),
+  'faf:v1:A:hide': seedAttempts(62, 12_000, 6400, 22),
+  'faf:v1:A:findm': seedAttempts(58, 9000, 4800, 33),
+  'faf:v1:A:lay': seedAttempts(138, 44_000, 19_000, 44),
+  'faf:v1:M:values': seedAttempts(88, 4400, 1700, 55),
+  'faf:v1:M:readrow': seedAttempts(64, 11_000, 5200, 66),
+  'faf:v1:M:findcard': seedAttempts(51, 17_000, 9100, 77),
+  'faf:v1:M:call': seedAttempts(124, 40_000, 17_500, 88),
 };
 
 async function waitForServer(timeoutMs = 60_000) {
@@ -97,6 +108,24 @@ const SHOTS: Shot[] = [
         await page.waitForTimeout(260);
       }
       await page.waitForTimeout(900);
+    },
+  },
+  {
+    name: 'history',
+    url: '/?role=A',
+    prepare: async (page) => {
+      await page.getByRole('tab', { name: 'Lay it out' }).click();
+      await page.waitForTimeout(400);
+      await page.getByRole('button', { name: 'Show the history' }).click();
+      await page.waitForTimeout(400);
+      await page.evaluate(() => {
+        const el = document.querySelector('section[aria-label="Practice statistics"]');
+        const header = document.querySelector('header');
+        if (!el) return;
+        const top = el.getBoundingClientRect().top + window.scrollY - (header?.offsetHeight ?? 0) - 12;
+        window.scrollTo({ top, behavior: 'instant' as ScrollBehavior });
+      });
+      await page.waitForTimeout(300);
     },
   },
   {

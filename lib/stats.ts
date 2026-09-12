@@ -31,7 +31,7 @@ export interface History {
 }
 
 /** Keep histories bounded so localStorage never grows without limit. */
-const MAX_ATTEMPTS = 400;
+const MAX_ATTEMPTS = 1200;
 
 export const keyFor = (role: Role, drill: DrillId): string =>
   `${PREFIX}:v${STATS_VERSION}:${role}:${drill}`;
@@ -90,77 +90,144 @@ export function clearDrill(role: Role, drill: DrillId): void {
   }
 }
 
-export function clearAll(): void {
+
+/* -------------------------------------------------------- the windows */
+
+/**
+ * Which trailing windows the stats bar reports on. This is a display
+ * preference, shared across every drill and both roles, not part of any
+ * drill's history.
+ */
+export const DEFAULT_WINDOWS: readonly number[] = [5, 12, 50];
+export const WINDOW_MIN = 2;
+export const WINDOW_MAX = 500;
+export const MAX_WINDOWS = 6;
+
+const WINDOWS_KEY = `${PREFIX}:v${STATS_VERSION}:windows`;
+
+/** Whole numbers, in range, unique, ascending, and never empty. */
+export function normaliseWindows(input: unknown): number[] {
+  if (!Array.isArray(input)) return [...DEFAULT_WINDOWS];
+  const cleaned = input
+    .filter((x): x is number => typeof x === 'number' && Number.isFinite(x))
+    .map((x) => Math.round(x))
+    .filter((x) => x >= WINDOW_MIN && x <= WINDOW_MAX);
+  const unique = [...new Set(cleaned)].sort((a, b) => a - b).slice(0, MAX_WINDOWS);
+  return unique.length > 0 ? unique : [...DEFAULT_WINDOWS];
+}
+
+export function readWindows(): number[] {
+  if (typeof window === 'undefined') return [...DEFAULT_WINDOWS];
+  try {
+    const raw = window.localStorage.getItem(WINDOWS_KEY);
+    return raw ? normaliseWindows(JSON.parse(raw)) : [...DEFAULT_WINDOWS];
+  } catch {
+    return [...DEFAULT_WINDOWS];
+  }
+}
+
+export function writeWindows(windows: readonly number[]): void {
   if (typeof window === 'undefined') return;
   try {
-    const doomed: string[] = [];
-    for (let i = 0; i < window.localStorage.length; i++) {
-      const k = window.localStorage.key(i);
-      if (k && k.startsWith(`${PREFIX}:`)) doomed.push(k);
-    }
-    doomed.forEach((k) => window.localStorage.removeItem(k));
+    window.localStorage.setItem(WINDOWS_KEY, JSON.stringify(windows));
   } catch {
-    /* ignore */
+    /* the preference just will not be remembered */
   }
 }
 
 /* ---------------------------------------------------------------- derived */
 
+export interface WindowSummary {
+  size: number;
+  /** how many attempts the window actually has, which may be short of `size` */
+  count: number;
+  avgMs: number | null;
+  /** 0-100 */
+  accuracy: number | null;
+  /** how many attempts sit in the comparison window immediately before it */
+  prevCount: number;
+  /** this window minus the one before it, in ms: negative is faster */
+  deltaMs: number | null;
+  /** this window minus the one before it, in percentage points */
+  deltaAccuracy: number | null;
+}
+
 export interface Summary {
   n: number;
   last: Attempt | null;
-  /** mean ms over the most recent 5 attempts, correct or not */
-  avg5: number | null;
-  avg12: number | null;
   avgAll: number | null;
   /** 0-100, or null with no attempts */
   accuracyAll: number | null;
-  accuracy12: number | null;
-  /** avg5 minus avgAll in ms: negative means the last five were faster */
-  delta: number | null;
   best: number | null;
+  windows: WindowSummary[];
 }
 
-const mean = (xs: number[]): number | null =>
+const mean = (xs: readonly number[]): number | null =>
   xs.length === 0 ? null : xs.reduce((a, b) => a + b, 0) / xs.length;
+
+const accuracyOf = (xs: readonly Attempt[]): number | null =>
+  xs.length === 0 ? null : (100 * xs.filter((a) => a.correct).length) / xs.length;
+
+/**
+ * One trailing window, measured against the window of the same size
+ * immediately before it. The comparison only happens once that earlier window
+ * is full, so it is always like for like.
+ */
+export function summariseWindow(attempts: readonly Attempt[], size: number): WindowSummary {
+  const n = attempts.length;
+  const cut = Math.max(0, n - size);
+  const current = attempts.slice(cut);
+  const previous = attempts.slice(Math.max(0, cut - size), cut);
+  const comparable = previous.length >= size;
+
+  const avgMs = mean(current.map((a) => a.ms));
+  const prevAvgMs = comparable ? mean(previous.map((a) => a.ms)) : null;
+  const accuracy = accuracyOf(current);
+  const prevAccuracy = comparable ? accuracyOf(previous) : null;
+
+  return {
+    size,
+    count: current.length,
+    avgMs,
+    accuracy,
+    prevCount: previous.length,
+    deltaMs: avgMs !== null && prevAvgMs !== null ? avgMs - prevAvgMs : null,
+    deltaAccuracy: accuracy !== null && prevAccuracy !== null ? accuracy - prevAccuracy : null,
+  };
+}
 
 /**
  * Timing averages deliberately include wrong answers: a fast wrong call is
  * not a fast drill. Accuracy is reported separately alongside.
  */
-export function summarise(attempts: readonly Attempt[]): Summary {
+export function summarise(attempts: readonly Attempt[], windows: readonly number[]): Summary {
   const n = attempts.length;
-  if (n === 0) {
-    return {
-      n: 0, last: null, avg5: null, avg12: null, avgAll: null,
-      accuracyAll: null, accuracy12: null, delta: null, best: null,
-    };
-  }
-
-  const ms = attempts.map((a) => a.ms);
-  const last5 = ms.slice(-5);
-  const last12 = ms.slice(-12);
-  const avg5 = mean(last5);
-  const avgAll = mean(ms);
-  const recent12 = attempts.slice(-12);
+  const correctTimes = attempts.filter((a) => a.correct).map((a) => a.ms);
 
   return {
     n,
-    last: attempts[n - 1],
-    avg5,
-    avg12: mean(last12),
-    avgAll,
-    accuracyAll: (100 * attempts.filter((a) => a.correct).length) / n,
-    accuracy12: (100 * recent12.filter((a) => a.correct).length) / recent12.length,
-    delta: avg5 !== null && avgAll !== null && n >= 5 ? avg5 - avgAll : null,
-    best: Math.min(...attempts.filter((a) => a.correct).map((a) => a.ms), Infinity) === Infinity
-      ? null
-      : Math.min(...attempts.filter((a) => a.correct).map((a) => a.ms)),
+    last: n === 0 ? null : attempts[n - 1],
+    avgAll: mean(attempts.map((a) => a.ms)),
+    accuracyAll: accuracyOf(attempts),
+    best: correctTimes.length === 0 ? null : Math.min(...correctTimes),
+    windows: windows.map((size) => summariseWindow(attempts, size)),
   };
 }
 
+/** A rolling mean over `size` attempts, one value per attempt. */
+export function rollingAverage(attempts: readonly Attempt[], size: number): number[] {
+  const out: number[] = [];
+  let sum = 0;
+  for (let i = 0; i < attempts.length; i++) {
+    sum += attempts[i].ms;
+    if (i >= size) sum -= attempts[i - size].ms;
+    out.push(sum / Math.min(i + 1, size));
+  }
+  return out;
+}
+
 export const formatMs = (ms: number | null): string =>
-  ms === null || !Number.isFinite(ms) ? '—' : `${(ms / 1000).toFixed(1)}s`;
+  ms === null || !Number.isFinite(ms) ? '\u2014' : `${(ms / 1000).toFixed(1)}s`;
 
 export const formatPct = (p: number | null): string =>
-  p === null || !Number.isFinite(p) ? '—' : `${Math.round(p)}%`;
+  p === null || !Number.isFinite(p) ? '\u2014' : `${Math.round(p)}%`;

@@ -6,10 +6,13 @@ import {
   getSeed,
   getServerHistory,
   getServerSeed,
+  getServerWindows,
+  getWindows,
   nextQuestion,
   record,
   resetDrill,
   subscribeSlot,
+  subscribeWindows,
 } from '@/lib/practice';
 import { type Attempt, type DrillId, type Role, summarise } from '@/lib/stats';
 import { useDrillTimer } from './useDrillTimer';
@@ -22,6 +25,7 @@ export function useDrill(role: Role, drill: DrillId) {
   const subscribe = useMemo(() => subscribeSlot(role, drill), [role, drill]);
   const seed = useSyncExternalStore(subscribe, getSeed(role, drill), getServerSeed);
   const history = useSyncExternalStore(subscribe, getHistory(role, drill), getServerHistory);
+  const windows = useSyncExternalStore(subscribeWindows, getWindows, getServerWindows);
   const timer = useDrillTimer();
 
   const submit = useCallback(
@@ -41,7 +45,7 @@ export function useDrill(role: Role, drill: DrillId) {
 
   const reset = useCallback(() => resetDrill(role, drill), [role, drill]);
 
-  const summary = useMemo(() => summarise(history.attempts), [history]);
+  const summary = useMemo(() => summarise(history.attempts, windows), [history, windows]);
 
   return { seed, next, timer, record: submit, reset, history, summary };
 }

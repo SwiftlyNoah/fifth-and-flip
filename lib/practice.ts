@@ -12,10 +12,13 @@ import {
   type DrillId,
   type History,
   type Role,
+  DEFAULT_WINDOWS,
   appendAttempt,
-  clearAll as clearAllStorage,
   clearDrill,
+  normaliseWindows,
   readHistory,
+  readWindows,
+  writeWindows,
 } from './stats';
 
 const ROLES: Role[] = ['A', 'M'];
@@ -103,12 +106,42 @@ export function resetDrill(role: Role, drill: DrillId): void {
   emit(slot);
 }
 
+/** Clears every drill's history. Display preferences are left alone. */
 export function resetEverything(): void {
-  clearAllStorage();
-  for (const key of Object.keys(SLOTS)) {
-    SLOTS[key].cache = EMPTY_HISTORY;
-    emit(SLOTS[key]);
+  for (const role of ROLES) {
+    for (const drill of DRILLS) {
+      clearDrill(role, drill);
+      const slot = slotOf(role, drill);
+      slot.cache = EMPTY_HISTORY;
+      emit(slot);
+    }
   }
+}
+
+/* ---------------------------------------------------------------- windows */
+
+const SERVER_WINDOWS: number[] = [...DEFAULT_WINDOWS];
+let windows: number[] | null = null;
+const windowListeners = new Set<Listener>();
+
+export function subscribeWindows(listener: Listener) {
+  windowListeners.add(listener);
+  return () => {
+    windowListeners.delete(listener);
+  };
+}
+
+export function getWindows(): number[] {
+  if (windows === null) windows = readWindows();
+  return windows;
+}
+
+export const getServerWindows = (): number[] => SERVER_WINDOWS;
+
+export function setWindows(next: readonly number[]): void {
+  windows = normaliseWindows([...next]);
+  writeWindows(windows);
+  windowListeners.forEach((l) => l());
 }
 
 /* ------------------------------------------------------------------- role */

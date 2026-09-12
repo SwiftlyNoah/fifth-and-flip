@@ -49,8 +49,8 @@ export default function Home() {
             rather than effortful.
           </li>
           <li>
-            <strong className="text-stock">Then the full drill</strong> for your side, against the clock. Watch the
-            last-five average, not the overall one.
+            <strong className="text-stock">Then the full drill</strong> for your side, against the clock. Watch a
+            short window and whether it is beating the window before it, not the overall average.
           </li>
           <li>
             <strong className="text-stock">Then together</strong>, with real cards and a real coin, and the magician

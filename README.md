@@ -26,11 +26,25 @@ card values, reading the row, turning `m` into a card, and calling it cold. Ever
 with the working: the actual numbers, step by step, the same way you would do it at a table. A
 shared *Check a hand* solver settles arguments.
 
-**Timing.** Practice is against a live clock, in tenths, and each drill keeps an ordered history
-per role: last attempt, last 5, last 12, overall, accuracy overall and over the last 12, plus a
-sparkline of the last two dozen attempts with the misses crossed. Wrong answers stay in the
-timing averages, because a fast wrong call is not a fast drill. It all lives in `localStorage`,
-so nothing leaves the machine.
+**Timing.** Practice is against a live clock, in tenths, and each drill keeps an ordered attempt
+history per role. You choose which trailing windows the bar reports on: last 5 and last 12 to
+start with, and you can add any window from 2 to 500, so last 10, last 50 and last 100 are a
+couple of clicks away. Each window shows its average time *and* its accuracy, each measured
+against the window of the same size immediately before it, so "last 50" tells you whether this
+fifty beat the previous fifty rather than whether it beat your all-time average. That comparison
+is only drawn once the earlier window is full, so it is always like for like. Alongside them sit
+the last attempt, the overall average and your best correct time.
+
+Wrong answers stay in the timing averages, because a fast wrong call is not a fast drill;
+accuracy is reported separately beside every average. It all lives in `localStorage`, so nothing
+leaves the machine.
+
+**Improvement over time.** The sparkline expands into the full history: every attempt as a point,
+misses crossed, a rolling average drawn through them, and a zero-based axis so a line that sinks
+across the chart is a real improvement rather than a rescaled one. Underneath, the two ends of
+the run are compared outright.
+
+![The expanded history, with a rolling average falling from 40s to 23s over 138 attempts](docs/screenshots/history-desktop.png)
 
 **The walkthrough.** One fixed hand, ten steps, about ninety seconds, [at `/learn`](https://fifth-and-flip.vercel.app/learn).
 One idea per step and one sentence of text; the animation carries the rest. Cards travel rather

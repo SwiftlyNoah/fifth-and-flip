@@ -51,8 +51,11 @@ app/
 lib/
   trick.ts              THE ALGORITHM. pure, framework-free, exhaustively tested
   trick.test.ts         the property tests
-  stats.ts              attempt history: localStorage shape, versioning, derived summaries
-  practice.ts           the external store React subscribes to (question seeds + history + role)
+  stats.test.ts         window averages, deltas, rolling means, preference validation
+  stats.ts              attempt history and window summaries: localStorage shape, versioning,
+                        per-window averages, accuracy and deltas, the rolling average
+  practice.ts           the external store React subscribes to (question seeds, history, role,
+                        and the window preference)
   random.ts             mulberry32, so a question is reproducible from its seed
 
 components/
@@ -64,8 +67,12 @@ components/
     useDrill.ts         one drill's seed, clock, history and submit path
     useDrillTimer.ts    the live tenths-of-a-second clock
     useKeys.ts          number keys answer, Enter advances
-    StatsPanel.tsx      last / last 5 / last 12 / overall, accuracy, delta
+    StatsPanel.tsx      the bar: one tile per configured window, plus last, overall and best
+    WindowEditor.tsx    add and remove the trailing windows the bar reports on
+    Delta.tsx           a change against the previous window, coloured by which way is better
     Sparkline.tsx       last ~24 attempts, wrong ones crossed
+    HistoryChart.tsx    the expanded view: every attempt, a rolling average, a zero-based axis
+    useMeasuredWidth.ts element width, so the chart can be drawn to fit
     Clock.tsx  CardPicker.tsx
     ValuesDrill HideDrill FindMDrill LayDrill      (assistant ladder)
     ReadRowDrill FindCardDrill CallItDrill         (magician ladder)
@@ -87,11 +94,17 @@ prototype.html          the original single-file version. historical reference; 
 - Questions are derived from a seed held in `lib/practice.ts` and read with
   `useSyncExternalStore`. "Next hand" advances the seed in an event handler. This keeps render
   pure and keeps SSR and hydration in step (server snapshots are constants).
-- Attempt history lives in `localStorage` under `faf:v<version>:<role>:<drill>`. Every read is
-  wrapped in try/catch and validated; a bad or stale payload degrades to an empty history.
+- Attempt history lives in `localStorage` under `faf:v<version>:<role>:<drill>`, and the window
+  preference under `faf:v<version>:windows`. Every read is wrapped in try/catch and validated; a
+  bad or stale payload degrades to an empty history, and a bad preference to `DEFAULT_WINDOWS`.
   Bump `STATS_VERSION` in `lib/stats.ts` for any shape change rather than migrating.
+- Windows are a **display preference**, shared by both roles and every drill, so "clear all stats"
+  wipes histories and leaves them alone.
 - **Timing averages include wrong answers.** Accuracy is reported separately. Do not quietly
   drop misses from the timing numbers.
+- A window's delta compares it with the window of the same size immediately before it, and is
+  withheld until that earlier window is full, so the comparison is always like for like. Never
+  compare a short window against the all-time average and call it a delta.
 
 ### Things not to do
 
