@@ -53,8 +53,13 @@ export function Walkthrough() {
       } else if (e.key === 'ArrowLeft') {
         e.preventDefault();
         setStep((s) => Math.max(1, s - 1));
-      } else if (e.key === 'Home') setStep(1);
-      else if (e.key === 'End') setStep(LAST);
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        setStep(1);
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        setStep(LAST);
+      }
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);

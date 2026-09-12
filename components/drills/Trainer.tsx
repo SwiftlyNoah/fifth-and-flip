@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useSyncExternalStore } from 'react';
+import { useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { CallItDrill } from './CallItDrill';
 import { FindCardDrill } from './FindCardDrill';
 import { FindMDrill } from './FindMDrill';
@@ -41,6 +41,29 @@ export function Trainer() {
   const role = useSyncExternalStore(subscribeRole, getRole, getServerRole);
   const [tab, setTab] = useState(0);
   const [confirmingAll, setConfirmingAll] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  // The header is sticky and changes height when its nav wraps, so the #trainer
+  // anchor jump measures it rather than guessing.
+  useLayoutEffect(() => {
+    const header = document.querySelector('header');
+    const section = sectionRef.current;
+    if (!header || !section) return;
+    const apply = () => {
+      section.style.scrollMarginTop = `${header.getBoundingClientRect().height}px`;
+    };
+    const ro = new ResizeObserver(apply);
+    ro.observe(header);
+    apply();
+
+    // The browser has already jumped to #trainer by now, using a margin of
+    // zero, so redo it once the real offset is known.
+    if (window.location.hash === '#trainer') {
+      section.scrollIntoView({ block: 'start', behavior: 'instant' as ScrollBehavior });
+    }
+
+    return () => ro.disconnect();
+  }, []);
 
   function chooseRole(r: Role) {
     setRole(r);
@@ -50,7 +73,7 @@ export function Trainer() {
   const ladder = LADDERS[role];
 
   return (
-    <section id="trainer" className="scroll-mt-28">
+    <section id="trainer" ref={sectionRef}>
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <span className="text-[0.88rem] text-chalk-dim">I am the</span>
         <button type="button" className="btn" aria-pressed={role === 'A'} onClick={() => chooseRole('A')}>
