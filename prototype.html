@@ -1,0 +1,650 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Fifth Card and the Coin — a two-person working manual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --felt:#0E3A2C; --felt-deep:#082A1F; --felt-line:#1C5642;
+  --stock:#F3F0E7; --stock-edge:#D9D3C2; --ink:#17191B; --red:#AF2B2E;
+  --brass:#D2A93C; --chalk:#D6E4DA; --chalk-dim:#93AFA1;
+  --good:#7FCB9B; --bad:#E8846B;
+  --serif:'Fraunces',Georgia,'Times New Roman',serif;
+  --sans:'Public Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--felt);
+  background-image:radial-gradient(ellipse at 22% 0%, #17503D 0%, transparent 55%),
+                   radial-gradient(ellipse at 85% 110%, #0B3226 0%, transparent 60%);
+  color:var(--chalk);font-family:var(--sans);font-size:17px;line-height:1.62}
+.wrap{max-width:880px;margin:0 auto;padding:0 22px 100px}
+
+header{padding:60px 0 26px}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(2.05rem,6vw,3.4rem);
+   line-height:1.03;letter-spacing:-.015em;margin:0 0 16px;color:var(--stock)}
+h1 .amp{font-style:italic;font-weight:400;color:var(--brass)}
+.standfirst{max-width:60ch;margin:0 0 4px}
+
+h2{font-family:var(--serif);font-weight:600;font-size:1.62rem;letter-spacing:-.01em;color:var(--stock);margin:0 0 4px}
+h3{font-family:var(--sans);font-weight:600;font-size:1.02rem;color:var(--stock);margin:26px 0 6px}
+section{padding-top:52px}
+.rule{height:1px;background:var(--felt-line);margin:0 0 24px}
+p{margin:0 0 14px;max-width:66ch}
+.dim{color:var(--chalk-dim)} .small{font-size:.88rem}
+code,.mono{font-family:var(--mono);font-size:.92em}
+code{background:rgba(0,0,0,.24);padding:1px 5px;border-radius:3px;color:var(--brass)}
+.inset{background:rgba(0,0,0,.22);border-radius:5px;padding:14px 16px;margin-bottom:18px}
+
+.hand{display:flex;flex-wrap:wrap;gap:9px;margin:4px 0}
+.card{width:58px;height:82px;flex:0 0 auto;background:var(--stock);border:1px solid var(--stock-edge);
+  border-radius:5px;color:var(--ink);font-family:var(--serif);font-weight:700;display:flex;
+  flex-direction:column;align-items:center;justify-content:center;line-height:1;cursor:default;
+  padding:0;box-shadow:0 2px 0 rgba(0,0,0,.28);transition:transform .12s ease,box-shadow .12s ease}
+.card .r{font-size:1.5rem} .card .s{font-size:1.15rem;margin-top:3px}
+.card.red{color:var(--red)}
+.card.joker .r{font-size:1.35rem}
+.card.joker .s{font-size:.62rem;letter-spacing:.06em;font-family:var(--mono);font-weight:600;margin-top:5px}
+.card.sm{width:42px;height:60px}
+.card.sm .r{font-size:1.05rem} .card.sm .s{font-size:.85rem;margin-top:1px}
+.card.sm.joker .r{font-size:.95rem} .card.sm.joker .s{font-size:.48rem;margin-top:3px}
+button.card{cursor:pointer}
+button.card:hover{transform:translateY(-3px);box-shadow:0 5px 0 rgba(0,0,0,.3)}
+button.card:disabled{opacity:.22;cursor:default;transform:none;box-shadow:none}
+.card.picked{outline:2px solid var(--brass);outline-offset:2px}
+.card.ghost{background:transparent;border:1px dashed var(--felt-line);box-shadow:none;
+  color:var(--chalk-dim);font-family:var(--mono);font-weight:400;font-size:.8rem}
+
+.slots{display:flex;gap:9px;align-items:flex-end;flex-wrap:wrap}
+.slot{display:flex;flex-direction:column;align-items:center;gap:5px}
+.slot .n{font-family:var(--mono);font-size:.72rem;color:var(--chalk-dim)}
+
+.btnrow{display:flex;flex-wrap:wrap;gap:7px;margin:8px 0}
+button.k{font-family:var(--sans);font-size:.92rem;font-weight:500;background:transparent;color:var(--chalk);
+  border:1px solid var(--felt-line);border-radius:4px;padding:7px 13px;cursor:pointer;
+  transition:background .12s,border-color .12s}
+button.k:hover{background:rgba(210,169,60,.13);border-color:var(--brass)}
+button.k[aria-pressed="true"]{background:var(--brass);border-color:var(--brass);color:#14251C;font-weight:600}
+button.k.wide{padding:9px 20px}
+button.k.go{background:var(--brass);border-color:var(--brass);color:#14251C;font-weight:600}
+button.k.go:hover{filter:brightness(1.08)}
+button.k:disabled{opacity:.35;cursor:default}
+button.k.mono{font-family:var(--mono);min-width:40px;text-align:center}
+
+.rolebar{display:flex;flex-wrap:wrap;gap:10px;align-items:baseline;margin:0 0 18px}
+.rolebar .lab{font-size:.88rem;color:var(--chalk-dim)}
+.tabs{display:flex;flex-wrap:wrap;border-bottom:1px solid var(--felt-line)}
+.tab{background:none;border:none;border-bottom:2px solid transparent;color:var(--chalk-dim);
+  font-family:var(--sans);font-size:.9rem;font-weight:500;padding:11px 13px;cursor:pointer;margin-bottom:-1px}
+.tab:hover{color:var(--chalk)}
+.tab[aria-selected="true"]{color:var(--brass);border-bottom-color:var(--brass)}
+.tab .lvl{font-family:var(--mono);font-size:.72rem;opacity:.6;margin-right:6px}
+
+.drillbox{border:1px solid var(--felt-line);border-top:none;border-radius:0 0 6px 6px;
+  background:var(--felt-deep);padding:22px}
+.prompt{font-size:.93rem;color:var(--chalk-dim);margin:0 0 12px;max-width:62ch}
+.verdict{font-family:var(--serif);font-size:1.15rem;font-weight:600;margin:14px 0 4px;min-height:1.5em}
+.verdict.ok{color:var(--good)} .verdict.no{color:var(--bad)}
+.score{display:flex;gap:24px;flex-wrap:wrap;font-family:var(--mono);font-size:.8rem;color:var(--chalk-dim);
+  border-top:1px solid var(--felt-line);margin-top:18px;padding-top:12px}
+.score b{color:var(--brass);font-weight:600}
+.work{margin-top:14px;font-size:.88rem}
+.work summary{cursor:pointer;color:var(--brass);font-size:.86rem}
+.work[open] summary{margin-bottom:10px}
+.worktable{font-family:var(--mono);font-size:.8rem;line-height:1.85}
+.worktable .lbl{color:var(--chalk-dim)}
+.hit{color:var(--brass);font-weight:600}
+.given{font-family:var(--mono);font-size:.95rem;color:var(--brass);margin:14px 0 0}
+
+table{border-collapse:collapse;width:100%;font-size:.9rem;margin:10px 0 18px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--felt-line)}
+th{color:var(--chalk-dim);font-weight:500;font-size:.8rem}
+td.mono,th.mono{font-family:var(--mono)}
+
+/* crib cards */
+.cribs{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:700px){.cribs{grid-template-columns:1fr}}
+.crib{background:var(--stock);color:var(--ink);border-radius:6px;padding:20px 22px;
+  box-shadow:0 3px 0 rgba(0,0,0,.3)}
+.crib h4{font-family:var(--serif);font-size:1.2rem;font-weight:600;margin:0 0 2px}
+.crib .who{font-size:.8rem;color:#6B6254;margin:0 0 14px}
+.crib ol{margin:0;padding-left:20px;font-size:.9rem;line-height:1.55}
+.crib ol li{margin-bottom:10px}
+.crib b{font-weight:600}
+.crib .m{font-family:var(--mono);font-size:.86em;background:#E4E0D3;padding:1px 4px;border-radius:3px}
+.crib table{margin:6px 0 0;font-size:.78rem}
+.crib th,.crib td{border-bottom:1px solid #DFDACB;padding:4px 6px;color:var(--ink)}
+.crib th{color:#6B6254}
+
+ol.steps{counter-reset:s;list-style:none;padding:0;margin:8px 0 0}
+ol.steps>li{counter-increment:s;position:relative;padding-left:38px;margin-bottom:18px;max-width:64ch}
+ol.steps>li::before{content:counter(s);position:absolute;left:0;top:1px;font-family:var(--mono);
+  font-size:.78rem;color:var(--brass);border:1px solid var(--felt-line);border-radius:50%;
+  width:24px;height:24px;display:flex;align-items:center;justify-content:center}
+ul.plain{padding-left:20px;margin:6px 0 14px}
+ul.plain li{margin-bottom:7px;max-width:64ch}
+.callout{border-left:2px solid var(--brass);padding:2px 0 2px 16px;margin:16px 0}
+
+input.cardinput{font-family:var(--mono);font-size:.95rem;background:rgba(0,0,0,.25);
+  border:1px solid var(--felt-line);color:var(--stock);border-radius:4px;padding:9px 11px;width:100%;max-width:340px}
+input.cardinput:focus{outline:2px solid var(--brass);outline-offset:1px}
+:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+footer{margin-top:70px;padding-top:22px;border-top:1px solid var(--felt-line);font-size:.84rem;color:var(--chalk-dim)}
+</style>
+
+<div class="wrap">
+
+<header>
+  <h1>The Fifth Card <span class="amp">&amp;</span> the Coin</h1>
+  <p class="standfirst">Fifty-four cards, both jokers in. A spectator picks five and flips a coin. The assistant lays four cards face up in a row and says nothing. The magician, out of the room throughout, names the fifth card and calls the coin.</p>
+  <p class="standfirst dim small">Five steps each side. Pick a role below and you only ever see your own.</p>
+</header>
+
+<section id="trainer" style="padding-top:14px">
+  <div class="rolebar">
+    <span class="lab">I am the</span>
+    <button class="k" id="roleA" type="button" aria-pressed="true">Assistant</button>
+    <button class="k" id="roleM" type="button" aria-pressed="false">Magician</button>
+  </div>
+  <div class="tabs" role="tablist" id="tabs"></div>
+  <div class="drillbox" id="drillbox"></div>
+</section>
+
+<section id="crib">
+  <h2>The whole thing on two cards</h2>
+  <div class="rule"></div>
+  <p>Print this, cut it in half, keep one each. Nothing else is needed once the numbering is in your head.</p>
+  <div class="cribs">
+
+    <div class="crib">
+      <h4>Assistant</h4>
+      <p class="who">You see five cards and the coin. You lay four down.</p>
+      <ol>
+        <li>Turn the five into numbers. <span class="m">♣ = rank, ♦ +13, ♥ +26, ♠ +39</span>, black joker 53, red 54.</li>
+        <li>Add all five. The remainder mod 5 is <b>i</b>. Hide the card <b>i</b> up from the bottom, counting the lowest as zero.</li>
+        <li><b>u</b> = hidden card's number minus <b>i</b>. Then <b>m</b> is the block of five that <b>u</b> lands in.
+          <table>
+            <tr><th class="mono">u</th><td class="mono">1–5</td><td class="mono">6–10</td><td class="mono">11–15</td><td class="mono">16–20</td><td class="mono">21–25</td></tr>
+            <tr><th class="mono">m</th><td class="mono">0</td><td class="mono">1</td><td class="mono">2</td><td class="mono">3</td><td class="mono">4</td></tr>
+            <tr><th class="mono">u</th><td class="mono">26–30</td><td class="mono">31–35</td><td class="mono">36–40</td><td class="mono">41–45</td><td class="mono">46–50</td></tr>
+            <tr><th class="mono">m</th><td class="mono">5</td><td class="mono">6</td><td class="mono">7</td><td class="mono">8</td><td class="mono">9</td></tr>
+          </table>
+        </li>
+        <li>Put the <b>lowest</b> of your four cards in the slot given by the coin and the band.
+          <table>
+            <tr><th></th><th class="mono">m 0–5</th><th class="mono">m 6–9</th></tr>
+            <tr><th>heads</th><td class="mono">slot 1</td><td class="mono">slot 2</td></tr>
+            <tr><th>tails</th><td class="mono">slot 3</td><td class="mono">slot 4</td></tr>
+          </table>
+        </li>
+        <li>The other three, left to right, spell <b>m mod 6</b>.
+          <table>
+            <tr><th class="mono">0</th><th class="mono">1</th><th class="mono">2</th><th class="mono">3</th><th class="mono">4</th><th class="mono">5</th></tr>
+            <tr><td class="mono">LMH</td><td class="mono">LHM</td><td class="mono">MLH</td><td class="mono">MHL</td><td class="mono">HLM</td><td class="mono">HML</td></tr>
+          </table>
+        </li>
+      </ol>
+    </div>
+
+    <div class="crib">
+      <h4>Magician</h4>
+      <p class="who">You see four cards in a row. You name the fifth and the coin.</p>
+      <ol>
+        <li>Find the <b>lowest</b> card in the row. Slots 1 and 2 are heads, slots 3 and 4 are tails. Slots 1 and 3 mean <b>m</b> is under six, slots 2 and 4 mean add six.</li>
+        <li>The other three, left to right, give <b>m mod 6</b>: <span class="m">LMH 0 · LHM 1 · MLH 2 · MHL 3 · HLM 4 · HML 5</span>. Add to get <b>m</b>.</li>
+        <li>Add the four numbers. <b>start</b> = 5 minus the remainder mod 5, and a remainder of 0 means start is 5.</li>
+        <li><b>u</b> = 5<b>m</b> + <b>start</b>.</li>
+        <li>Write the four shown numbers in order and subtract 0, 1, 2, 3 from them. Count how many of those four <b>u</b> reaches or passes, and add that to <b>u</b>. That number is the hidden card.</li>
+      </ol>
+    </div>
+
+  </div>
+  <p class="small dim" style="margin-top:16px">Both jokers must be tellable apart. If yours are identical, put a pencil dot on one and agree which is which before you ever perform.</p>
+</section>
+
+<section id="example">
+  <h2>One hand, both sides</h2>
+  <div class="rule"></div>
+  <p>The spectator holds 7♣ A♦ Q♥ 3♠ 9♠ and the coin came up heads.</p>
+  <div class="inset worktable">
+    <span class="lbl">assistant</span><br>
+    numbers 7, 14, 38, 42, 48 &nbsp;·&nbsp; total 149 &nbsp;·&nbsp; 149 mod 5 = <span class="hit">4</span> &rarr; hide the top one, 9♠ = 48<br>
+    u = 48 &minus; 4 = <span class="hit">44</span> &rarr; block 41&ndash;45 &rarr; m = <span class="hit">8</span><br>
+    heads and m in the 6&ndash;9 band &rarr; lowest card 7♣ goes in slot 2<br>
+    8 mod 6 = 2 &rarr; M L H &rarr; row is <span class="hit">Q♥ 7♣ A♦ 3♠</span>
+  </div>
+  <div class="inset worktable" style="margin-bottom:0">
+    <span class="lbl">magician</span><br>
+    lowest card 7♣ is in slot 2 &rarr; <span class="hit">heads</span>, and add six<br>
+    other three Q♥ A♦ 3♠ read middle, low, high &rarr; 2, so m = 6 + 2 = <span class="hit">8</span><br>
+    7 + 14 + 38 + 42 = 101, remainder 1, start = <span class="hit">4</span> &nbsp;·&nbsp; u = 5&times;8 + 4 = <span class="hit">44</span><br>
+    checkpoints 7, 13, 36, 39 &rarr; 44 passes all four &rarr; 44 + 4 = <span class="hit">48</span> = <span class="hit">9♠</span>
+  </div>
+</section>
+
+<section id="count">
+  <h2>Where the numbers come from</h2>
+  <div class="rule"></div>
+  <p>You never need this to perform, but it makes the five steps stop feeling arbitrary.</p>
+  <p>Lay the deck out in order, 1 to 54, and take out the four cards on the table. Fifty are left. Push them together and renumber them 1 to 50. Every fifth one of those survivors is a candidate, and there are exactly ten because fifty divides by five. The assistant is telling the magician <em>which of the ten</em>, and that number is <code>m</code>.</p>
+  <p>The assistant's subtraction is just a shortcut for finding the hidden card's place among the survivors. Exactly <code>i</code> of the four shown cards sit below it, since it is the card <code>i</code> up from the bottom of the five, so its place is its value minus <code>i</code>. The magician's checkpoints do the same conversion backwards, since subtracting 0, 1, 2 and 3 from the shown cards marks the points where a survivor number and a card number pull another step apart.</p>
+  <p>The encoding itself is a counting fact. Four cards shown in order out of five carry <code>5 × 4! = 120</code> signals: 24 from the arrangement and a factor of five from choosing which card to withhold. Naming one card out of fifty costs 100, so the coin fits in the slack and a three-way choice never could.</p>
+</section>
+
+<section id="rehearse">
+  <h2>How to rehearse</h2>
+  <div class="rule"></div>
+  <p>Pick your side and stay on it. You will only ever perform one of them, and learning both at once is how pairs stall.</p>
+  <ul class="plain">
+    <li><strong>Card values first, both of you.</strong> Until you stop computing and start recognising, about a card a second. Everything above this is gated on it and most pairs quit the drill too early.</li>
+    <li><strong>Then your own middle two drills</strong> until the arithmetic is boring rather than effortful.</li>
+    <li><strong>Then the full drill</strong> for your side, against the clock.</li>
+    <li><strong>Then together</strong>, with real cards and a real coin, and the magician actually out of the room. Use <em>Check a hand</em> to settle arguments.</li>
+  </ul>
+  <h3>On the floor</h3>
+  <ul class="plain">
+    <li>The assistant needs half a minute or so. Buy it with business: squaring the deck, having the spectator initial the coin, asking them to close a fist over it. Silence and a fixed stare is the tell.</li>
+    <li>Slot position is the entire coin. Lay the row down deliberately and never nudge a card afterwards to straighten the line.</li>
+    <li>Call the card first, then the coin. The card is the trick; the coin is what they repeat to other people.</li>
+    <li>If the magician names a card that is face up on the table, something went wrong upstream. Agree in advance on how to die gracefully.</li>
+  </ul>
+</section>
+
+<footer>
+  Numbers: ♣ = rank, ♦ +13, ♥ +26, ♠ +39, black joker 53, red joker 54. Remainders mod 5: clubs +0, diamonds +3, hearts +1, spades +4. Assistant: i = total mod 5, hide i up from the bottom, u = value − i, m = block of five. Magician: slot of the lowest card gives coin and band, other three give m mod 6, start = 5 − (shown sum mod 5), u = 5m + start, then add how many of the shown-minus-0,1,2,3 checkpoints u passes.
+</footer>
+
+</div>
+
+<script>
+(function(){
+"use strict";
+
+const N = 54, BJ = 53, RJ = 54;
+const SU = ['C','D','H','S'], SG = ['♣','♦','♥','♠'];
+const RK = ['A','2','3','4','5','6','7','8','9','T','J','Q','K'];
+const PERMS = [[0,1,2],[0,2,1],[1,0,2],[1,2,0],[2,0,1],[2,1,0]];
+const CODE  = ['L M H','L H M','M L H','M H L','H L M','H M L'];
+
+const isJoker = v => v===BJ || v===RJ;
+const rankOf = v => (v-1) % 13, suitOf = v => Math.floor((v-1)/13);
+const nameOf  = v => v===BJ ? 'black joker' : v===RJ ? 'red joker' : RK[rankOf(v)]+SG[suitOf(v)];
+const shortOf = v => v===BJ ? 'BJ' : v===RJ ? 'RJ' : RK[rankOf(v)]+SG[suitOf(v)];
+const isRed   = v => v===RJ || (!isJoker(v) && (suitOf(v)===1 || suitOf(v)===2));
+const blockOf = u => (5*Math.floor((u-1)/5)+1)+'\u2013'+(5*(Math.floor((u-1)/5)+1));
+
+function startPos(shown){ const s = shown.reduce((a,b)=>a+b,0) % 5; return s===0 ? 5 : 5-s; }
+function checkpoints(shown){ return [...shown].sort((a,b)=>a-b).map((a,k)=>a-k); }
+function candidates(shown){
+  const set = new Set(shown), un = [];
+  for(let c=1;c<=N;c++) if(!set.has(c)) un.push(c);
+  const out = [];
+  for(let p=startPos(shown);p<=un.length;p+=5) out.push(un[p-1]);
+  return out;
+}
+function encode(hand, coin){
+  const h5 = [...hand].sort((a,b)=>a-b);
+  const i = h5.reduce((a,b)=>a+b,0) % 5;
+  const hidden = h5[i];
+  const shown = h5.filter(x=>x!==hidden);
+  const u = hidden - i, m = Math.floor((u-1)/5);
+  const pos = coin==='H' ? (m<6?1:2) : (m<6?3:4);
+  const rest = shown.slice(1);
+  const arr = PERMS[m%6].map(p=>rest[p]);
+  const layout = arr.slice(0,pos-1).concat([shown[0]], arr.slice(pos-1));
+  return {i, hidden, shown, m, u, pos, layout, cands: candidates(shown),
+          S: shown.reduce((a,b)=>a+b,0), start: startPos(shown)};
+}
+function readRow(layout){
+  const shown = [...layout].sort((a,b)=>a-b);
+  const low = shown[0], pos = layout.indexOf(low)+1;
+  const coin = pos<=2 ? 'H' : 'T';
+  const rest = layout.filter(x=>x!==low);
+  const srt = [...rest].sort((a,b)=>a-b);
+  const pv = PERMS.findIndex(p=>p.join('')===rest.map(x=>srt.indexOf(x)).join(''));
+  return {coin, pos, pv, m:(pos===1||pos===3?0:6)+pv, shown, low};
+}
+function cardFrom(shown, m){
+  const u = 5*m + startPos(shown), cps = checkpoints(shown);
+  return {u, cps, h: u + cps.filter(c=>u>=c).length};
+}
+function decode(layout){
+  const r = readRow(layout);
+  return {coin:r.coin, m:r.m, pos:r.pos, hidden: cardFrom(r.shown, r.m).h, shown:r.shown};
+}
+function dealHand(){ const s=new Set(); while(s.size<5) s.add(1+Math.floor(Math.random()*N)); return [...s].sort((a,b)=>a-b); }
+
+const el = (t,c,txt) => { const e=document.createElement(t); if(c)e.className=c; if(txt!=null)e.textContent=txt; return e; };
+function cardEl(v,{small=false,button=false,onClick=null}={}){
+  const e = document.createElement(button?'button':'div');
+  e.className = 'card'+(isRed(v)?' red':'')+(small?' sm':'')+(isJoker(v)?' joker':'');
+  e.append(el('span','r', isJoker(v)?'★':RK[rankOf(v)]), el('span','s', isJoker(v)?'JOKER':SG[suitOf(v)]));
+  if(button){ e.type='button'; e.setAttribute('aria-label', nameOf(v)); }
+  if(onClick) e.addEventListener('click',onClick);
+  return e;
+}
+function handEl(vals,opts){ const d=el('div','hand'); vals.forEach(v=>d.append(cardEl(v,opts))); return d; }
+function rowEl(layout){
+  const strip = el('div','slots');
+  layout.forEach((c,k)=>{ const cell=el('div','slot'); cell.append(cardEl(c), el('div','n',String(k+1))); strip.append(cell); });
+  return strip;
+}
+
+function Score(){ return {n:0, ok:0, t0:0, ms:0}; }
+function scoreEl(sc){
+  const d = el('div','score'), avg = sc.n ? (sc.ms/sc.n/1000).toFixed(1)+'s' : '—';
+  d.innerHTML = `<span>attempts <b>${sc.n}</b></span><span>correct <b>${sc.ok}</b></span>`+
+                `<span>accuracy <b>${sc.n?Math.round(100*sc.ok/sc.n):0}%</b></span><span>avg time <b>${avg}</b></span>`;
+  return d;
+}
+const box = document.getElementById('drillbox');
+const S = {}; const getScore = k => (S[k] = S[k] || Score());
+
+function shell(promptText, sc){
+  box.innerHTML='';
+  const p = el('p','prompt'); p.innerHTML = promptText; box.append(p);
+  const body = el('div'); box.append(body);
+  const v = el('div','verdict'); box.append(v);
+  const after = el('div'); box.append(after);
+  if(sc) box.append(scoreEl(sc));
+  return {body, v, after};
+}
+function nextBtn(fn){
+  const b = el('button','k go wide','Next hand'); b.type='button'; b.addEventListener('click',fn);
+  const row = el('div','btnrow'); row.style.marginTop='10px'; row.append(b);
+  setTimeout(()=>b.focus(),0); return row;
+}
+function workBlock(node){
+  const d=document.createElement('details'); d.className='work';
+  const s=document.createElement('summary'); s.textContent='Show the working';
+  d.append(s,node); return d;
+}
+function refreshScore(sc){ box.replaceChild(scoreEl(sc), box.lastChild); }
+function numRow(lo, hi, onPick){
+  const row = el('div','btnrow'); row.style.marginTop='14px';
+  for(let k=lo;k<=hi;k++){
+    const b = el('button','k mono', String(k)); b.type='button';
+    b.addEventListener('click',()=>onPick(k,row)); row.append(b);
+  }
+  return row;
+}
+function lock(row){ row.querySelectorAll('button').forEach(x=>x.disabled=true); }
+
+/* ---------- shared ---------- */
+function dValues(){
+  const sc = getScore('values'), v = 1 + Math.floor(Math.random()*N);
+  const {body, v:verd, after} = shell('What is this card\u2019s number <strong>mod 5</strong>? Rank remainder, plus 0 for clubs, 3 for diamonds, 1 for hearts, 4 for spades. Black joker is 53, red is 54.', sc);
+  body.append(handEl([v]));
+  sc.t0 = performance.now();
+  body.append(numRow(0,4,(k,row)=>{
+    sc.n++; sc.ms += performance.now()-sc.t0;
+    if(k===v%5){ sc.ok++; verd.className='verdict ok'; verd.textContent='Correct.'; }
+    else { verd.className='verdict no'; verd.textContent='No \u2014 it is '+(v%5)+'.'; }
+    lock(row);
+    const d = isJoker(v) ? `${nameOf(v)} = <span class="hit">${v}</span>`
+      : `${shortOf(v)} = ${rankOf(v)+1} + ${13*suitOf(v)} = <span class="hit">${v}</span>`;
+    after.innerHTML = `<div class="worktable">${d}, and ${v} mod 5 = <span class="hit">${v%5}</span></div>`;
+    after.append(nextBtn(dValues)); refreshScore(sc);
+  }));
+}
+
+/* ---------- assistant ---------- */
+function dHide(){
+  const sc = getScore('hide'), hand = dealHand();
+  const i = hand.reduce((a,b)=>a+b,0)%5;
+  const {body, v:verd, after} = shell('Which of these five does the assistant hide? Add all five numbers, take mod 5, then count up from the lowest card starting at zero.', sc);
+  const row = el('div','hand'); sc.t0 = performance.now();
+  hand.forEach((c,k)=>row.append(cardEl(c,{button:true,onClick:()=>{
+    sc.n++; sc.ms += performance.now()-sc.t0;
+    if(k===i){ sc.ok++; verd.className='verdict ok'; verd.textContent='Correct.'; }
+    else { verd.className='verdict no'; verd.textContent='No \u2014 it is the '+nameOf(hand[i])+'.'; }
+    lock(row); row.children[i].classList.add('picked'); row.children[i].disabled=false;
+    after.innerHTML = `<div class="worktable">${hand.join(' + ')} = <span class="hit">${hand.reduce((a,b)=>a+b,0)}</span>, `+
+      `mod 5 = <span class="hit">${i}</span> \u2192 ${i} up from the bottom \u2192 <span class="hit">${shortOf(hand[i])}</span></div>`;
+    after.append(nextBtn(dHide)); refreshScore(sc);
+  }})));
+  body.append(row);
+}
+function dFindM(){
+  const sc = getScore('findm'), e = encode(dealHand(),'H');
+  const {body, v:verd, after} = shell('You have already worked out that <strong>this card</strong> is the one to hide, and the hide index is given. Take <code>u</code> = its number minus <code>i</code>, then say which block of five <code>u</code> lands in.', sc);
+  const wrap = el('div'); wrap.style.cssText='display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start';
+  const g1 = el('div'); g1.append(el('div','small dim','Going face up'), handEl(e.shown,{small:true}));
+  const g2 = el('div'); g2.append(el('div','small dim','Hiding'), handEl([e.hidden],{small:true}));
+  wrap.append(g1,g2); body.append(wrap);
+  body.append(el('p','given','i = '+e.i));
+  sc.t0 = performance.now();
+  body.append(numRow(0,9,(k,row)=>{
+    sc.n++; sc.ms += performance.now()-sc.t0;
+    if(k===e.m){ sc.ok++; verd.className='verdict ok'; verd.textContent='Correct.'; }
+    else { verd.className='verdict no'; verd.textContent='No \u2014 m is '+e.m+'.'; }
+    lock(row);
+    const w = el('div','worktable');
+    w.innerHTML = `<span class="lbl">u</span> ${shortOf(e.hidden)} = ${e.hidden}, so u = ${e.hidden} \u2212 ${e.i} = <span class="hit">${e.u}</span><br>`+
+      `<span class="lbl">block</span> ${e.u} sits in ${blockOf(e.u)} \u2192 m = <span class="hit">${e.m}</span>`;
+    after.append(workBlock(w), nextBtn(dFindM)); refreshScore(sc);
+  }));
+}
+function dLay(){
+  const sc = getScore('lay'), hand = dealHand();
+  const coin = Math.random()<0.5?'H':'T', e = encode(hand, coin);
+  const {body, v:verd, after} = shell(`The spectator\u2019s five cards, and the coin came up <strong>${coin==='H'?'heads':'tails'}</strong>. Leave one out and click the other four in the order you would lay them down.`, sc);
+  let placed = [];
+  const source = el('div','hand'), strip = el('div','slots'); strip.style.marginTop='16px';
+  const ctrl = el('div','btnrow'); ctrl.style.marginTop='14px';
+  const clear = el('button','k','Clear row'), submit = el('button','k go','Lay it down');
+  clear.type=submit.type='button'; submit.disabled=true; ctrl.append(clear,submit);
+  function render(){
+    source.innerHTML='';
+    hand.forEach(c=>{
+      const b = cardEl(c,{button:true,onClick:()=>{ if(placed.length<4 && !placed.includes(c)){ placed.push(c); render(); }}});
+      b.disabled = placed.includes(c) || placed.length>=4; source.append(b);
+    });
+    strip.innerHTML='';
+    for(let s=0;s<4;s++){
+      const cell = el('div','slot');
+      if(placed[s]!=null) cell.append(cardEl(placed[s],{button:true,onClick:()=>{ placed.splice(s,1); render(); }}));
+      else { const g=el('div','card ghost'); g.textContent='slot '+(s+1); cell.append(g); }
+      cell.append(el('div','n',String(s+1))); strip.append(cell);
+    }
+    submit.disabled = placed.length!==4;
+  }
+  clear.addEventListener('click',()=>{ placed=[]; render(); });
+  submit.addEventListener('click',()=>{
+    sc.n++; sc.ms += performance.now()-sc.t0;
+    const got = decode(placed), trueHidden = hand.find(c=>!placed.includes(c));
+    if(got.hidden===trueHidden && got.coin===coin){ sc.ok++; verd.className='verdict ok'; verd.textContent='Correct \u2014 that row reads back clean.'; }
+    else { verd.className='verdict no';
+      verd.textContent = 'No. Your row says '+(got.hidden!=null?nameOf(got.hidden):'nothing valid')+' and '+(got.coin==='H'?'heads':'tails')+'.'; }
+    lock(source); lock(strip); clear.disabled=submit.disabled=true;
+    const w = el('div','worktable');
+    w.innerHTML =
+      `<span class="lbl">step 2</span> total ${hand.reduce((a,b)=>a+b,0)}, mod 5 = <span class="hit">${e.i}</span> \u2192 hide <span class="hit">${shortOf(e.hidden)}</span> = ${e.hidden}<br>`+
+      `<span class="lbl">step 3</span> u = ${e.hidden} \u2212 ${e.i} = <span class="hit">${e.u}</span> \u2192 ${blockOf(e.u)} \u2192 m = <span class="hit">${e.m}</span><br>`+
+      `<span class="lbl">step 4</span> ${coin==='H'?'heads':'tails'}, m ${e.m<6?'under 6':'6 or more'} \u2192 lowest card ${shortOf(e.shown[0])} in <span class="hit">slot ${e.pos}</span><br>`+
+      `<span class="lbl">step 5</span> ${e.m} mod 6 = ${e.m%6} \u2192 <span class="hit">${CODE[e.m%6]}</span><br>`+
+      `<span class="lbl">row</span> <span class="hit">${e.layout.map(shortOf).join('  ')}</span>`;
+    after.append(workBlock(w), nextBtn(dLay)); refreshScore(sc);
+  });
+  body.append(source, strip, ctrl); render(); sc.t0 = performance.now();
+}
+
+/* ---------- magician ---------- */
+function dReadRow(){
+  const sc = getScore('readrow'), hand = dealHand();
+  const coin = Math.random()<0.5?'H':'T', e = encode(hand, coin);
+  const {body, v:verd, after} = shell('Just read the row. No arithmetic at all: the lowest card\u2019s slot gives the coin and the band, and the other three give <code>m mod 6</code>.', sc);
+  body.append(rowEl(e.layout));
+  let pickM=null, pickC=null;
+  const mRow = numRow(0,9,(k,row)=>{ pickM=k; row.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed','false'));
+    row.children[k].setAttribute('aria-pressed','true'); upd(); });
+  const cRow = el('div','btnrow');
+  [['H','Heads'],['T','Tails']].forEach(([cv,lab])=>{ const b=el('button','k',lab); b.type='button'; b.setAttribute('aria-pressed','false');
+    b.addEventListener('click',()=>{ pickC=cv; cRow.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed','false')); b.setAttribute('aria-pressed','true'); upd(); }); cRow.append(b); });
+  const go = el('button','k go wide','Call it'); go.type='button'; go.disabled=true;
+  const goRow = el('div','btnrow'); goRow.append(go);
+  function upd(){ go.disabled = !(pickM!=null && pickC!=null); }
+  go.addEventListener('click',()=>{
+    sc.n++; sc.ms += performance.now()-sc.t0;
+    if(pickM===e.m && pickC===coin){ sc.ok++; verd.className='verdict ok'; verd.textContent='Correct.'; }
+    else { verd.className='verdict no'; verd.textContent='No \u2014 m is '+e.m+' and it was '+(coin==='H'?'heads':'tails')+'.'; }
+    [mRow,cRow,goRow].forEach(lock);
+    const w = el('div','worktable');
+    w.innerHTML = `<span class="lbl">lowest</span> ${shortOf(e.shown[0])} in slot ${e.pos} \u2192 <span class="hit">${coin==='H'?'heads':'tails'}</span>, ${e.m<6?'m under 6':'add 6'}<br>`+
+      `<span class="lbl">other three</span> ${CODE[e.m%6]} = ${e.m%6} \u2192 m = <span class="hit">${e.m}</span>`;
+    after.append(workBlock(w), nextBtn(dReadRow)); refreshScore(sc);
+  });
+  body.append(el('div','small dim','m'), mRow, el('div','small dim','Coin'), cRow, goRow);
+  sc.t0 = performance.now();
+}
+function cardPicker(onChange){
+  let pickR=null, pickS=null, pickJ=null;
+  const clr = r => r.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed','false'));
+  const rRow = el('div','btnrow'), sRow = el('div','btnrow'), jRow = el('div','btnrow');
+  RK.forEach((r,k)=>{ const b=el('button','k mono',r); b.type='button'; b.setAttribute('aria-pressed','false');
+    b.addEventListener('click',()=>{ pickR=k; pickJ=null; clr(rRow); clr(jRow); b.setAttribute('aria-pressed','true'); onChange(val()); }); rRow.append(b); });
+  SG.forEach((s,k)=>{ const b=el('button','k mono',s); b.type='button'; b.setAttribute('aria-pressed','false');
+    if(k===1||k===2) b.style.color='#E58F8F';
+    b.addEventListener('click',()=>{ pickS=k; pickJ=null; clr(sRow); clr(jRow); b.setAttribute('aria-pressed','true'); onChange(val()); }); sRow.append(b); });
+  [[BJ,'Black joker'],[RJ,'Red joker']].forEach(([v,lab])=>{ const b=el('button','k',lab); b.type='button'; b.setAttribute('aria-pressed','false');
+    b.addEventListener('click',()=>{ pickJ=v; pickR=pickS=null; clr(rRow); clr(sRow); clr(jRow); b.setAttribute('aria-pressed','true'); onChange(val()); }); jRow.append(b); });
+  function val(){ return pickJ!=null ? pickJ : (pickR!=null && pickS!=null ? 13*pickS+pickR+1 : null); }
+  return {rows:[rRow,sRow,jRow], val,
+    mount(parent){ parent.append(el('div','small dim','Rank'), rRow, el('div','small dim','Suit'), sRow,
+                                 el('div','small dim','or a joker'), jRow); }};
+}
+function dFindCard(){
+  const sc = getScore('findcard'), hand = dealHand();
+  const e = encode(hand, Math.random()<0.5?'H':'T');
+  const {body, v:verd, after} = shell('You have already read <code>m</code> off the row. Now turn it into a card: add the four numbers for <code>start</code>, get <code>u</code>, then push it past the checkpoints.', sc);
+  body.append(handEl(e.shown,{small:true}));
+  body.append(el('p','given','m = '+e.m));
+  const pick = cardPicker(()=>{ go.disabled = pick.val()==null; });
+  pick.mount(body);
+  const go = el('button','k go wide','Name it'); go.type='button'; go.disabled=true;
+  const goRow = el('div','btnrow'); goRow.append(go); body.append(goRow);
+  go.addEventListener('click',()=>{
+    sc.n++; sc.ms += performance.now()-sc.t0;
+    if(pick.val()===e.hidden){ sc.ok++; verd.className='verdict ok'; verd.textContent='Correct \u2014 the '+nameOf(e.hidden)+'.'; }
+    else { verd.className='verdict no'; verd.textContent='No \u2014 it was the '+nameOf(e.hidden)+'.'; }
+    [...pick.rows, goRow].forEach(lock);
+    const cf = cardFrom(e.shown, e.m), passed = cf.cps.filter(c=>cf.u>=c).length;
+    const w = el('div','worktable');
+    w.innerHTML = `<span class="lbl">start</span> ${e.shown.join(' + ')} = ${e.S}, mod 5 = ${e.S%5} \u2192 start = <span class="hit">${e.start}</span><br>`+
+      `<span class="lbl">u</span> 5\u00d7${e.m} + ${e.start} = <span class="hit">${cf.u}</span><br>`+
+      `<span class="lbl">checkpoints</span> ${cf.cps.join(', ')} \u2192 ${cf.u} passes ${passed} \u2192 ${cf.u} + ${passed} = <span class="hit">${cf.h}</span> = <span class="hit">${shortOf(cf.h)}</span>`;
+    after.append(workBlock(w), nextBtn(dFindCard)); refreshScore(sc);
+  });
+  sc.t0 = performance.now();
+}
+function dRead(){
+  const sc = getScore('read'), hand = dealHand();
+  const coin = Math.random()<0.5?'H':'T', e = encode(hand, coin);
+  const {body, v:verd, after} = shell('Your assistant has laid down this row. Name the hidden card and call the coin.', sc);
+  body.append(rowEl(e.layout));
+  let pickC=null;
+  const pick = cardPicker(()=>upd());
+  const holder = el('div'); holder.style.marginTop='14px'; pick.mount(holder); body.append(holder);
+  const cRow = el('div','btnrow');
+  [['H','Heads'],['T','Tails']].forEach(([cv,lab])=>{ const b=el('button','k',lab); b.type='button'; b.setAttribute('aria-pressed','false');
+    b.addEventListener('click',()=>{ pickC=cv; cRow.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed','false')); b.setAttribute('aria-pressed','true'); upd(); }); cRow.append(b); });
+  const go = el('button','k go wide','Call it'); go.type='button'; go.disabled=true;
+  const goRow = el('div','btnrow'); goRow.append(go);
+  body.append(el('div','small dim','Coin'), cRow, goRow);
+  function upd(){ go.disabled = !(pick.val()!=null && pickC!=null); }
+  go.addEventListener('click',()=>{
+    sc.n++; sc.ms += performance.now()-sc.t0;
+    if(pick.val()===e.hidden && pickC===coin){ sc.ok++; verd.className='verdict ok'; verd.textContent='Correct \u2014 '+nameOf(e.hidden)+', '+(coin==='H'?'heads':'tails')+'.'; }
+    else { verd.className='verdict no'; verd.textContent='No \u2014 it was the '+nameOf(e.hidden)+', '+(coin==='H'?'heads':'tails')+'.'; }
+    [...pick.rows, cRow, goRow].forEach(lock);
+    const cf = cardFrom(e.shown, e.m), passed = cf.cps.filter(c=>cf.u>=c).length;
+    const w = el('div','worktable');
+    w.innerHTML = `<span class="lbl">steps 1\u20132</span> ${shortOf(e.shown[0])} in slot ${e.pos} \u2192 ${coin==='H'?'heads':'tails'}, ${e.m<6?'under 6':'add 6'}; other three ${CODE[e.m%6]} = ${e.m%6} \u2192 m = <span class="hit">${e.m}</span><br>`+
+      `<span class="lbl">step 3</span> ${e.shown.join(' + ')} = ${e.S}, mod 5 = ${e.S%5} \u2192 start = <span class="hit">${e.start}</span><br>`+
+      `<span class="lbl">step 4</span> u = 5\u00d7${e.m} + ${e.start} = <span class="hit">${cf.u}</span><br>`+
+      `<span class="lbl">step 5</span> checkpoints ${cf.cps.join(', ')} \u2192 passes ${passed} \u2192 <span class="hit">${cf.h}</span> = <span class="hit">${shortOf(cf.h)}</span>`;
+    after.append(workBlock(w), nextBtn(dRead)); refreshScore(sc);
+  });
+  sc.t0 = performance.now();
+}
+
+/* ---------- solver ---------- */
+function dCheck(){
+  box.innerHTML='';
+  const p = el('p','prompt');
+  p.innerHTML = 'Settle an argument. Five cards separated by spaces, <code>T</code> for ten, <code>C D H S</code> for suits, <code>BJ</code> and <code>RJ</code> for the jokers.';
+  box.append(p);
+  const inp = document.createElement('input');
+  inp.className='cardinput'; inp.value='7C AD QH 3S 9S'; box.append(inp);
+  const cRow = el('div','btnrow'); cRow.style.marginTop='12px';
+  let coin='H';
+  const bh=el('button','k','Heads'), bt=el('button','k','Tails'), go=el('button','k go','Work it out');
+  bh.type=bt.type=go.type='button'; bh.setAttribute('aria-pressed','true'); bt.setAttribute('aria-pressed','false');
+  bh.addEventListener('click',()=>{coin='H';bh.setAttribute('aria-pressed','true');bt.setAttribute('aria-pressed','false');run();});
+  bt.addEventListener('click',()=>{coin='T';bt.setAttribute('aria-pressed','true');bh.setAttribute('aria-pressed','false');run();});
+  cRow.append(bh,bt,go); box.append(cRow);
+  const out = el('div'); out.style.marginTop='8px'; box.append(out);
+  function parse(str){
+    const toks = str.trim().toUpperCase().replace(/10/g,'T').split(/[\s,]+/).filter(Boolean);
+    if(toks.length!==5) return null;
+    const vals = toks.map(t=>{
+      if(t==='BJ') return BJ; if(t==='RJ') return RJ;
+      if(t.length!==2) return -1;
+      const r=RK.indexOf(t[0]), s=SU.indexOf(t[1]);
+      return (r<0||s<0) ? -1 : 13*s+r+1;
+    });
+    return (vals.some(v=>v<0) || new Set(vals).size!==5) ? null : vals.sort((a,b)=>a-b);
+  }
+  function run(){
+    out.innerHTML='';
+    const hand = parse(inp.value);
+    if(!hand){ out.append(el('div','verdict no','That is not five different valid cards.')); return; }
+    const e = encode(hand, coin), cf = cardFrom(e.shown, e.m), passed = cf.cps.filter(c=>cf.u>=c).length;
+    out.append(el('div','small dim','Lay it down like this'), rowEl(e.layout));
+    const w = el('div','worktable'); w.style.marginTop='16px';
+    w.innerHTML =
+      `<span class="lbl">numbers</span> ${hand.map(v=>shortOf(v)+'='+v).join('  ')}<br>`+
+      `<span class="lbl">assistant</span> total ${hand.reduce((a,b)=>a+b,0)}, i = <span class="hit">${e.i}</span>, hide ${shortOf(e.hidden)} = ${e.hidden}, `+
+      `u = <span class="hit">${e.u}</span>, m = <span class="hit">${e.m}</span>, slot <span class="hit">${e.pos}</span>, ${CODE[e.m%6]}<br>`+
+      `<span class="lbl">magician</span> shown sum ${e.S}, start ${e.start}, u = ${cf.u}, checkpoints ${cf.cps.join(', ')} pass ${passed} \u2192 <span class="hit">${shortOf(cf.h)}</span>`;
+    out.append(w);
+  }
+  go.addEventListener('click',run);
+  inp.addEventListener('keydown',ev=>{ if(ev.key==='Enter') run(); });
+  run();
+}
+
+/* ---------- role + tabs ---------- */
+const LADDERS = {
+  A: [['1','Card values',dValues],['2','Which card hides',dHide],['3','Find m',dFindM],['4','Lay it out',dLay],['—','Check a hand',dCheck]],
+  M: [['1','Card values',dValues],['2','Read the row',dReadRow],['3','Find the card',dFindCard],['4','Call it',dRead],['—','Check a hand',dCheck]]
+};
+const tabsEl = document.getElementById('tabs');
+const roleA = document.getElementById('roleA'), roleM = document.getElementById('roleM');
+let role = 'A';
+function buildTabs(k){
+  tabsEl.innerHTML='';
+  LADDERS[role].forEach(([lvl,label,fn],j)=>{
+    const b = el('button','tab'); b.type='button'; b.setAttribute('role','tab');
+    b.setAttribute('aria-selected', j===k ? 'true':'false');
+    b.append(el('span','lvl',lvl), document.createTextNode(label));
+    b.addEventListener('click',()=>{ buildTabs(j); fn(); });
+    tabsEl.append(b);
+  });
+}
+function setRole(r){
+  role = r;
+  roleA.setAttribute('aria-pressed', r==='A' ? 'true':'false');
+  roleM.setAttribute('aria-pressed', r==='M' ? 'true':'false');
+  buildTabs(0); LADDERS[role][0][2]();
+}
+roleA.addEventListener('click',()=>setRole('A'));
+roleM.addEventListener('click',()=>setRole('M'));
+setRole('A');
+
+})();
+</script>
