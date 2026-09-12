@@ -27,8 +27,15 @@ export function FindMDrill() {
   }
 
   useKeys((key) => {
-    if (!closed && /^[0-9]$/.test(key)) submit(Number(key));
-    else if (closed && key === 'Enter') next();
+    if (!closed && /^[0-9]$/.test(key)) {
+      submit(Number(key));
+      return true;
+    }
+    if (closed && key === 'Enter') {
+      next();
+      return true;
+    }
+    return false;
   });
 
   return (

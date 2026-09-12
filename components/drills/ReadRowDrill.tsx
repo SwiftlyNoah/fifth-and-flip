@@ -39,12 +39,28 @@ export function ReadRowDrill() {
   }
 
   useKeys((key) => {
-    if (closed && key === 'Enter') return next();
-    if (closed) return;
-    if (/^[0-9]$/.test(key)) setM(Number(key));
-    else if (key === 'h' || key === 'H') setCoin('H');
-    else if (key === 't' || key === 'T') setCoin('T');
-    else if (key === 'Enter' && ready) submit();
+    if (closed) {
+      if (key !== 'Enter') return false;
+      next();
+      return true;
+    }
+    if (/^[0-9]$/.test(key)) {
+      setM(Number(key));
+      return true;
+    }
+    if (key === 'h' || key === 'H') {
+      setCoin('H');
+      return true;
+    }
+    if (key === 't' || key === 'T') {
+      setCoin('T');
+      return true;
+    }
+    if (key === 'Enter' && ready) {
+      submit();
+      return true;
+    }
+    return false;
   });
 
   return (

@@ -40,9 +40,16 @@ export function CallItDrill() {
   }
 
   useKeys((key) => {
-    if (closed && key === 'Enter') return next();
-    if (closed) return;
-    if (key === 'Enter' && ready) submit();
+    if (key !== 'Enter') return false;
+    if (closed) {
+      next();
+      return true;
+    }
+    if (ready) {
+      submit();
+      return true;
+    }
+    return false;
   });
 
   const cf = cardFrom(e.shown, e.m);

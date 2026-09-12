@@ -39,12 +39,25 @@ export function LayDrill() {
   }
 
   useKeys((key) => {
-    if (closed && key === 'Enter') next();
-    else if (!closed && key === 'Enter' && full) submit();
-    else if (!closed && /^[1-5]$/.test(key)) {
+    if (closed) {
+      if (key !== 'Enter') return false;
+      next();
+      return true;
+    }
+    if (key === 'Enter' && full) {
+      submit();
+      return true;
+    }
+    if (/^[1-5]$/.test(key)) {
       const c = hand[Number(key) - 1];
       if (c != null && !placed.includes(c) && placed.length < 4) setPlaced([...placed, c]);
-    } else if (!closed && (key === 'Backspace' || key === 'Delete')) setPlaced(placed.slice(0, -1));
+      return true;
+    }
+    if (key === 'Backspace' || key === 'Delete') {
+      setPlaced(placed.slice(0, -1));
+      return true;
+    }
+    return false;
   });
 
   return (

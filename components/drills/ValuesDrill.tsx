@@ -29,8 +29,15 @@ export function ValuesDrill({ role }: { role: Role }) {
   }
 
   useKeys((key) => {
-    if (!closed && /^[0-4]$/.test(key)) submit(Number(key));
-    else if (closed && key === 'Enter') next();
+    if (!closed && /^[0-4]$/.test(key)) {
+      submit(Number(key));
+      return true;
+    }
+    if (closed && key === 'Enter') {
+      next();
+      return true;
+    }
+    return false;
   });
 
   return (

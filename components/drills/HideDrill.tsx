@@ -29,8 +29,15 @@ export function HideDrill() {
   }
 
   useKeys((key) => {
-    if (!closed && /^[1-5]$/.test(key)) submit(Number(key) - 1);
-    else if (closed && key === 'Enter') next();
+    if (!closed && /^[1-5]$/.test(key)) {
+      submit(Number(key) - 1);
+      return true;
+    }
+    if (closed && key === 'Enter') {
+      next();
+      return true;
+    }
+    return false;
   });
 
   return (

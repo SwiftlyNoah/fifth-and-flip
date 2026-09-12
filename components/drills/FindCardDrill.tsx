@@ -35,8 +35,16 @@ export function FindCardDrill() {
   }
 
   useKeys((key) => {
-    if (closed && key === 'Enter') next();
-    else if (!closed && key === 'Enter' && value !== null) submit();
+    if (key !== 'Enter') return false;
+    if (closed) {
+      next();
+      return true;
+    }
+    if (value !== null) {
+      submit();
+      return true;
+    }
+    return false;
   });
 
   const cf = cardFrom(e.shown, e.m);
